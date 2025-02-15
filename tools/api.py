@@ -137,7 +137,7 @@ async def get_tzshift(geo: list[float]) -> int:
 
     async with ClientSession() as session:
         params = {'key': get('APIKEY_TIMEZONE'), 'format': 'json', 'by': 'position', 'lng': geo[0], 'lat': geo[1]}
-        async with session.get('http://api.timezonedb.com/v2.1/get-time-zone', params=params) as resp:
+        async with session.get('https://api.timezonedb.com/v2.1/get-time-zone', params=params) as resp:
             resp_dict = await resp.json()
             if resp.status == 200:
                 if resp_dict['status'] == 'OK':
