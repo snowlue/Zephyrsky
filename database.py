@@ -75,7 +75,7 @@ class Database:
 
     # SETTERS
 
-    async def create_user(self, tg_id: int, geo: list[float] = None, notify_time: list[str] = None, state: dict = None):
+    async def create_user(self, tg_id: int, geo: list[float] = None, notify_time: str = None, state: dict = None):
         """
         Создаёт нового пользователя в базе данных.
 
@@ -89,8 +89,8 @@ class Database:
         :type state: dict
         """
         data = {k: v for k, v in list(locals().items())[1:] if v is not None}
-        if notify_time := data.get("notify_time"):
-            data["notify_time"] = datetime.strptime(notify_time, "%H:%M").time()
+        if new_notify_time := data.get("notify_time"):
+            data["notify_time"] = datetime.strptime(new_notify_time, "%H:%M").time()
         user = User(**data)
         self.session.add(user)
         self.session.commit()
