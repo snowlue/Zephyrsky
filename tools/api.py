@@ -19,15 +19,15 @@ def extract_weather_data(data: dict) -> dict:
     }
 
 
-async def get_weather(geo: list[float]) -> tuple[list[int], dict[str, time]]:
+async def get_weather(geo: list[float]) -> tuple[dict, dict[str, time]]:
     """
     Получает информацию о текущей погоде по координатам, используя OpenWeatherMap API.
 
     :param geo: Список из двух чисел с плавающей точкой, представляющих долготу и широту местоположения.
     :type geo: list[float]
 
-    :return: список из цифр, представляющих погоду + время восхода и заката.
-    :rtype: tuple[list[int], dict[str, time]]
+    :return: словарь с цифрами, представляющими погоду + время восхода и заката.
+    :rtype: tuple[dict, dict[str, time]]
 
     :raises ValueError: Если координаты недействителен или на сервере внутренняя ошибка.
     :raises ConnectionError: Если возникает проблема с подключением к API OpenWeatherMap.
