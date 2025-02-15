@@ -1,5 +1,5 @@
 from aiohttp import ClientSession
-from datetime import datetime
+from datetime import datetime, time
 
 from loader import get
 from tools.converters import degrees_to_side, weather_id_to_icon
@@ -19,15 +19,15 @@ def extract_weather_data(data: dict) -> dict:
     }
 
 
-async def get_weather(geo: list[float]) -> list:
+async def get_weather(geo: list[float]) -> tuple[list[int], dict[str, time]]:
     """
     Получает информацию о текущей погоде по координатам, используя OpenWeatherMap API.
 
     :param geo: Список из двух чисел с плавающей точкой, представляющих долготу и широту местоположения.
     :type geo: list[float]
 
-    :return: список из цифр, представляющих погоду.
-    :rtype: list
+    :return: список из цифр, представляющих погоду + время восхода и заката.
+    :rtype: tuple[list[int], dict[str, time]]
 
     :raises ValueError: Если координаты недействителен или на сервере внутренняя ошибка.
     :raises ConnectionError: Если возникает проблема с подключением к API OpenWeatherMap.
