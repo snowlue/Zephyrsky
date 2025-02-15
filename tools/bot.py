@@ -88,15 +88,15 @@ async def notify_admins(text: str):
             await bot.send_message(admin, text)
 
 
-async def get_greeting(uid: int, with_city: bool = True) -> str:
+async def get_greeting(uid: int, with_city: bool = True) -> tuple[str, str]:
     """
     Генерирует уникальное приветствие для пользователя, используя город и часовой пояс с текущим временем.
 
     :param uid: Telegram ID пользователя для поиска пользователя в базе данных, если он там записан.
     :type uid: int
 
-    :return: Строка, содержащая приветствие для пользователя, основанное на его местном времени и городе.
-    :rtype: str
+    :return: Кортеж с двумя строками: приветствие и иконка, основанные на местном времени и городе пользователя.
+    :rtype: tuple[str, str]
     """
 
     user = await db.get_user(uid)
