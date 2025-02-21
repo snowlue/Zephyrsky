@@ -34,20 +34,16 @@ async def send_location(call: CallbackQuery | CallbackData, state: FSMContext):
     await db.set_state(main_msg.chat.id, 'main_msg_id', main_msg.message_id)
 
 
-@router.message(F.location, StateFilter(Dialog.get_geo))
-async def get_location_as_object(msg: Message, state: FSMContext):
-    logging.debug('get_location_as_object (msg: %s, state: %s)', msg, state)
-
-    geo = [msg.location.longitude, msg.location.latitude]
+async def response_to_location(geo: list[float], city: str, msg: Message, state: FSMContext):
     await db.set_geo(msg.chat.id, geo)
-    city = await reverse_geocoding(geo)
     await db.set_state(msg.chat.id, 'city', city)
     await db.set_state(msg.chat.id, 'tz_shift', await get_tzshift(geo))
-
+    
     await msg.delete()
     service_msg = await bot.send_message(msg.chat.id, 'ㅤ', reply_markup=ReplyKeyboardRemove())
     await service_msg.delete()
     await bot.delete_message(msg.chat.id, await db.get_state(msg.chat.id, 'main_msg_id'))
+
     if await db.get_state(msg.chat.id, 'from') == 'settings':
         await start.settings(CallbackData('settings', msg), state)
     elif await db.get_state(msg.chat.id, 'from') == 'forecast':
@@ -57,27 +53,23 @@ async def get_location_as_object(msg: Message, state: FSMContext):
     await delete_state(state)
 
 
+@router.message(F.location, StateFilter(Dialog.get_geo))
+async def get_location_as_object(msg: Message, state: FSMContext):
+    logging.debug('get_location_as_object (msg: %s, state: %s)', msg, state)
+
+    geo = [msg.location.longitude, msg.location.latitude]
+    city = await reverse_geocoding(geo)
+
+    await response_to_location(geo, city, msg, state)
+
+
 @router.message(F.text != '🔙 Назад', StateFilter(Dialog.get_geo))
 async def get_location_as_text(msg: Message, state: FSMContext):
     logging.debug('get_location_as_text (msg: %s, state: %s)', msg, state)
-    await msg.delete()
     try:
         geo, city = await geocoding(msg.text)
     except ValueError:
         await bot.edit_message_text(LOCATION_ERROR, msg.chat.id, await db.get_state(msg.chat.id, 'main_msg_id'))
         return
 
-    await db.set_geo(msg.chat.id, geo)
-    await db.set_state(msg.chat.id, 'city', city)
-    await db.set_state(msg.chat.id, 'tz_shift', await get_tzshift(geo))
-
-    service_msg = await bot.send_message(msg.chat.id, 'ㅤ', reply_markup=ReplyKeyboardRemove())
-    await service_msg.delete()
-    await bot.delete_message(msg.chat.id, await db.get_state(msg.chat.id, 'main_msg_id'))
-    if await db.get_state(msg.chat.id, 'from') == 'settings':
-        await start.settings(CallbackData('settings', msg), state)
-    elif await db.get_state(msg.chat.id, 'from') == 'forecast':
-        await weather.forecast(CallbackData('weather forecast', msg), state)
-    elif await db.get_state(msg.chat.id, 'from') == 'notify':
-        await notify.notify_settings(CallbackData('notify_settings', msg), state)
-    await delete_state(state)
+    await response_to_location(geo, city, msg, state)
