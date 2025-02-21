@@ -90,7 +90,7 @@ async def reverse_geocoding(geo: list[float]) -> str:
             raise ConnectionError
 
 
-async def geocoding(city: str) -> tuple[tuple[float], str]:
+async def geocoding(city: str) -> tuple[list[float], str]:
     """
     Геокодирует город в долготу и широту своего местоположения.
     Используется API Геокодера Яндекса.
@@ -99,7 +99,7 @@ async def geocoding(city: str) -> tuple[tuple[float], str]:
     :type city: str
 
     :return: Кортеж из двух чисел с плавающей точкой и корректное названием города, найденные из геокода.
-    :rtype: tuple[tuple[float], str]
+    :rtype: tuple[list[float], str]
 
     :raises ValueError: Если геокод недействителен или в ответе не найдены координаты.
     :raises ConnectionError: Если возникает проблема с подключением к API Геокодера Яндекса.
